@@ -1,399 +1,323 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Platform Redesign</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vynix Video</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
     <script src="https://unpkg.com/feather-icons"></script>
+    
     <style>
         :root {
             --bg-main: #FFFFFF;
             --bg-surface: #F9FAFB;
             --bg-hover: #F3F4F6;
-            --text-primary: #111827;
+            --text-primary: #000000;
             --text-secondary: #6B7280;
-            --accent: #FF0000;
+            --accent: #000000; /* Changed from red to black */
             --border: #E5E7EB;
             --sidebar-width: 240px;
-            --header-height: 70px;
+            --header-height: 60px;
             --radius: 12px;
         }
 
-        [data-theme="dark"] {
-            --bg-main: #0F0F0F;
-            --bg-surface: #212121;
-            --bg-hover: #383838;
-            --text-primary: #F1F1F1;
-            --text-secondary: #AAAAAA;
-            --border: #3F3F3F;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-main);
-            color: var(--text-primary);
-            display: grid;
+        body { background: var(--bg-main); color: var(--text-primary); overflow: hidden; }
+
+        /* --- AUTH SCREEN --- */
+        #auth-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; background: var(--bg-surface); padding: 20px; z-index: 1000; position: absolute; inset: 0;
+        }
+        .auth-card {
+            background: var(--bg-main); padding: 32px; border-radius: var(--radius); width: 100%; max-width: 400px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border);
+        }
+        .auth-card h2 { margin-bottom: 24px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+        .auth-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 12px;}
+        .auth-toggle { text-align: center; color: var(--text-secondary); font-size: 14px; cursor: pointer; }
+
+        /* --- MAIN APP LAYOUT --- */
+        #app-screen {
+            display: none; /* Hidden until authenticated */
             grid-template-columns: var(--sidebar-width) 1fr;
             grid-template-rows: var(--header-height) 1fr;
             height: 100vh;
-            overflow: hidden;
         }
 
-        /* --- HEADER --- */
-        header {
-            grid-column: 1 / 3;
-            grid-row: 1 / 2;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            background: var(--bg-main);
-            border-bottom: 1px solid var(--border);
-            z-index: 10;
-        }
+        /* HEADER */
+        header { grid-column: 1 / 3; grid-row: 1 / 2; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg-main); }
+        .brand { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .search-bar { display: flex; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 99px; padding: 8px 16px; width: 400px; }
+        .search-bar input { flex: 1; border: none; background: transparent; outline: none; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+        /* SIDEBAR (Desktop) */
+        aside { grid-column: 1 / 2; grid-row: 2 / 3; border-right: 1px solid var(--border); padding: 16px 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer;}
+        .nav-item:hover, .nav-item.active { background: var(--bg-hover); font-weight: 600; }
 
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 99px;
-            padding: 8px 16px;
-            width: 100%;
-            max-width: 500px;
-        }
+        /* BOTTOM NAV (Mobile) */
+        .bottom-nav { display: none; position: fixed; bottom: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border); padding: 12px 0; z-index: 50; }
+        .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-secondary); cursor: pointer; }
 
-        .search-bar input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text-primary);
-            font-size: 15px;
-        }
+        /* MAIN FEED */
+        main { grid-column: 2 / 3; grid-row: 2 / 3; overflow-y: auto; padding: 24px; background: var(--bg-surface); }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .video-card { display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
+        .video-thumb { width: 100%; aspect-ratio: 16/9; background: var(--bg-hover); border-radius: 12px; object-fit: cover; }
+        .video-info-row { display: flex; gap: 12px; }
+        .video-text h3 { font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+        .video-text p { font-size: 13px; color: var(--text-secondary); }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            color: var(--text-secondary);
-        }
+        /* UPLOAD MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal-card { background: var(--bg-main); padding: 24px; border-radius: var(--radius); width: 90%; max-width: 500px; }
 
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--bg-hover);
-            object-fit: cover;
-            cursor: pointer;
-        }
-
-        /* --- SIDEBAR --- */
-        aside {
-            grid-column: 1 / 2;
-            grid-row: 2 / 3;
-            background: var(--bg-main);
-            border-right: 1px solid var(--border);
-            padding: 20px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow-y: auto;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: var(--bg-hover);
-        }
-
-        .nav-item.active {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .nav-item.active svg {
-            stroke: var(--accent);
-            fill: rgba(255, 0, 0, 0.1);
-        }
-
-        /* --- MAIN CONTENT --- */
-        main {
-            grid-column: 2 / 3;
-            grid-row: 2 / 3;
-            padding: 24px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 24px;
-            background: var(--bg-surface);
-        }
-
-        /* Video Player Area */
-        .video-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .player-wrapper {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: var(--radius);
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .video-info h1 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .video-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .channel-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .channel-text h3 {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .channel-text p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .subscribe-btn {
-            background: var(--text-primary);
-            color: var(--bg-main);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 99px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 12px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 99px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        /* Sidebar Suggestions */
-        .up-next {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .up-next-header {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .related-video {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            gap: 12px;
-            cursor: pointer;
-        }
-
-        .related-thumbnail {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: var(--bg-hover);
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .related-info h4 {
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 4px;
-        }
-
-        .related-info p {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        /* Responsive */
-        @media (max-width: 1100px) {
-            main {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            body {
-                grid-template-columns: 1fr;
-            }
-            aside {
-                display: none; /* In a full build, convert this to a bottom nav or hamburger menu */
-            }
-            header {
-                grid-column: 1 / 2;
-            }
-            main {
-                grid-column: 1 / 2;
-                padding: 16px;
-            }
-            .search-bar {
-                display: none; /* Hide on mobile, show search icon instead */
-            }
+            #app-screen { grid-template-columns: 1fr; grid-template-rows: var(--header-height) 1fr; }
+            aside { display: none; }
+            main { grid-column: 1 / 2; padding: 16px; padding-bottom: 80px; }
+            .search-bar { display: none; }
+            .bottom-nav { display: flex; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="brand">
-            <i data-feather="youtube" style="color: var(--accent); width: 28px; height: 28px; fill: var(--accent);"></i>
-            Vynix
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2 id="auth-title">Sign In to Vynix</h2>
+            <input type="email" id="auth-email" class="auth-input" placeholder="Email address">
+            <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+            <button class="auth-btn" id="auth-submit-btn" onclick="handleAuth()">Sign In</button>
+            <div class="auth-toggle" onclick="toggleAuthMode()">Need an account? Sign Up</div>
         </div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search for videos, creators, and more...">
-            <i data-feather="search" style="color: var(--text-secondary); width: 18px; height: 18px;"></i>
-        </div>
-        <div class="header-actions">
-            <i data-feather="video" style="cursor: pointer;"></i>
-            <i data-feather="bell" style="cursor: pointer;"></i>
-            <img src="https://i.pravatar.cc/100?img=11" alt="Avatar" class="avatar">
-        </div>
-    </header>
+    </div>
 
-    <aside>
-        <a href="#" class="nav-item active"><i data-feather="home"></i> Home</a>
-        <a href="#" class="nav-item"><i data-feather="compass"></i> Explore</a>
-        <a href="#" class="nav-item"><i data-feather="play-circle"></i> Subscriptions</a>
-        <hr style="border: 0; border-top: 1px solid var(--border); margin: 12px 0;">
-        <a href="#" class="nav-item"><i data-feather="folder"></i> Library</a>
-        <a href="#" class="nav-item"><i data-feather="clock"></i> History</a>
-        <a href="#" class="nav-item"><i data-feather="thumbs-up"></i> Liked Videos</a>
-    </aside>
-
-    <main>
-        <div class="video-container">
-            <div class="player-wrapper">
-                <video src="YOUR_VIDEO_URL_HERE" controls style="width: 100%; height: 100%; object-fit: cover;"></video>
+    <div id="app-screen">
+        <header>
+            <div class="brand">
+                <i data-feather="play" style="fill: var(--accent); color: var(--accent);"></i> Vynix
             </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+                <i data-feather="search" style="color: var(--text-secondary);"></i>
+            </div>
+            <div class="header-actions">
+                <i data-feather="plus-square" style="cursor: pointer;" onclick="openUploadModal()"></i>
+                <img src="https://i.pravatar.cc/100" id="header-avatar" class="avatar" onclick="logout()">
+            </div>
+        </header>
+
+        <aside>
+            <div class="nav-item active"><i data-feather="home"></i> Home</div>
+            <div class="nav-item"><i data-feather="compass"></i> Explore</div>
+            <div class="nav-item"><i data-feather="folder"></i> Library</div>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+            <div class="nav-item" onclick="logout()"><i data-feather="log-out"></i> Logout</div>
+        </aside>
+
+        <main>
+            <h2 style="margin-bottom: 20px; font-size: 18px;">Recommended for you</h2>
+            <div class="video-grid" id="feed-container">
+                </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="bottom-nav-item"><i data-feather="home"></i>Home</div>
+            <div class="bottom-nav-item" onclick="openUploadModal()"><i data-feather="plus-circle"></i>Upload</div>
+            <div class="bottom-nav-item" onclick="logout()"><i data-feather="user"></i>Profile</div>
+        </nav>
+    </div>
+
+    <div class="modal-overlay" id="upload-modal" onclick="if(event.target === this) closeUploadModal()">
+        <div class="modal-card">
+            <h3 style="margin-bottom: 16px;">Upload Video</h3>
+            <input type="file" id="media-input" accept="video/*" class="auth-input">
+            <input type="text" id="post-title" placeholder="Video Title" class="auth-input">
+            <button class="auth-btn" id="upload-btn" onclick="createPost()">Publish</button>
+            <button class="auth-btn" style="background: var(--bg-hover); color: var(--text-primary);" onclick="closeUploadModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, push, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
+            authDomain: "fire-b-a8878.firebaseapp.com",
+            databaseURL: "https://fire-b-a8878.firebaseio.com",
+            projectId: "fire-b-a8878",
+            storageBucket: "fire-b-a8878.appspot.com",
+            messagingSenderId: "658673187627",
+            appId: "1:658673187627:web:6e4c29af661785f0afa36e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const CLOUDINARY_CLOUD_NAME   = 'dqkujefxj';
+        const CLOUDINARY_UPLOAD_PRESET = 'banter_box';
+
+        let currentUser = null;
+        let isSignup = false;
+
+        // UI Toggles
+        window.toggleAuthMode = () => {
+            isSignup = !isSignup;
+            document.getElementById('auth-title').innerText = isSignup ? "Create Account" : "Sign In to Vynix";
+            document.getElementById('auth-submit-btn').innerText = isSignup ? "Sign Up" : "Sign In";
+            document.querySelector('.auth-toggle').innerText = isSignup ? "Already have an account? Sign In" : "Need an account? Sign Up";
+        };
+
+        window.openUploadModal = () => document.getElementById('upload-modal').style.display = 'flex';
+        window.closeUploadModal = () => {
+            document.getElementById('upload-modal').style.display = 'none';
+            document.getElementById('media-input').value = '';
+            document.getElementById('post-title').value = '';
+        };
+
+        // Authentication
+        window.handleAuth = async () => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if(!email || !password) return alert("Fill all fields");
+
+            try {
+                if(isSignup) {
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    // Create user profile in DB
+                    await set(ref(db, `users/${cred.user.uid}`), {
+                        username: email.split('@')[0],
+                        photoURL: "https://i.pravatar.cc/100?img=" + Math.floor(Math.random() * 70),
+                        createdAt: serverTimestamp()
+                    });
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        window.logout = () => signOut(auth);
+
+        // Auth State Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'grid';
+                loadFeed();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('app-screen').style.display = 'none';
+            }
+        });
+
+        // Cloudinary Upload Logic
+        async function uploadToCloudinary(file) {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            fd.append('resource_type', 'auto');
             
-            <div class="video-info">
-                <h1>Building a Full-Stack Social App with Firebase & JS</h1>
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
+            if (!res.ok) throw new Error('Cloudinary upload failed');
+            return await res.json();
+        }
+
+        // Create Post
+        window.createPost = async () => {
+            const fileInput = document.getElementById('media-input');
+            const title = document.getElementById('post-title').value;
+            const btn = document.getElementById('upload-btn');
+
+            if(!fileInput.files[0] || !title) return alert("Select a file and enter a title.");
+
+            btn.innerText = "Uploading...";
+            btn.disabled = true;
+
+            try {
+                // Upload to Cloudinary
+                const uploadRes = await uploadToCloudinary(fileInput.files[0]);
                 
-                <div class="video-meta">
-                    <div class="channel-info">
-                        <img src="https://i.pravatar.cc/100?img=11" alt="Katlego" class="avatar" style="width: 48px; height: 48px;">
-                        <div class="channel-text">
-                            <h3>Katlego Dev</h3>
-                            <p>14.2K subscribers</p>
+                // Save to Firebase Realtime DB
+                await push(ref(db, 'videos'), {
+                    uid: currentUser.uid,
+                    title: title,
+                    mediaUrl: uploadRes.secure_url,
+                    mediaType: uploadRes.resource_type,
+                    timestamp: serverTimestamp()
+                });
+
+                closeUploadModal();
+                alert("Upload successful!");
+            } catch (error) {
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = "Publish";
+                btn.disabled = false;
+            }
+        };
+
+        // Load Feed
+        function loadFeed() {
+            onValue(ref(db, 'videos'), (snapshot) => {
+                const container = document.getElementById('feed-container');
+                container.innerHTML = '';
+                
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p style="color:var(--text-secondary);">No videos yet. Be the first to upload!</p>';
+                    return;
+                }
+
+                const videos = [];
+                snapshot.forEach(child => videos.push({ id: child.key, ...child.val() }));
+                videos.reverse(); // Newest first
+
+                videos.forEach(vid => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    
+                    // Simple placeholder logic if it's a video vs image
+                    const mediaElement = vid.mediaType === 'video' 
+                        ? `<video src="${vid.mediaUrl}" class="video-thumb" muted onmouseover="this.play()" onmouseout="this.pause()"></video>`
+                        : `<img src="${vid.mediaUrl}" class="video-thumb">`;
+
+                    card.innerHTML = `
+                        ${mediaElement}
+                        <div class="video-info-row">
+                            <img src="https://i.pravatar.cc/100?u=${vid.uid}" class="avatar">
+                            <div class="video-text">
+                                <h3>${vid.title}</h3>
+                                <p>User • Just now</p>
+                            </div>
                         </div>
-                        <button class="subscribe-btn">Subscribe</button>
-                    </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
 
-                    <div class="action-buttons">
-                        <button class="action-btn"><i data-feather="thumbs-up" style="width: 18px;"></i> 1.2K</button>
-                        <button class="action-btn"><i data-feather="share-2" style="width: 18px;"></i> Share</button>
-                        <button class="action-btn"><i data-feather="bookmark" style="width: 18px;"></i> Save</button>
-                    </div>
-                </div>
-                
-                <div style="background: var(--bg-hover); padding: 16px; border-radius: var(--radius); margin-top: 16px; font-size: 14px; line-height: 1.5;">
-                    <p style="font-weight: 600; margin-bottom: 8px;">15,043 views • Premiered Jan 12, 2026</p>
-                    <p>In this video, we rebuild the Vynix app from a mobile-first swiping layout into a clean, desktop-oriented video platform...</p>
-                </div>
-            </div>
-        </div>
+        // PWA Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg Failed', err));
+            });
+        }
 
-        <div class="up-next">
-            <div class="up-next-header">Up next</div>
-            
-            <div class="related-video">
-                <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&q=80" class="related-thumbnail">
-                <div class="related-info">
-                    <h4>Advanced CSS Grid Layouts & UI Refactoring</h4>
-                    <p>Design Pro</p>
-                    <p>45K views • 2 days ago</p>
-                </div>
-            </div>
-
-            <div class="related-video">
-                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&q=80" class="related-thumbnail">
-                <div class="related-info">
-                    <h4>Firebase Realtime Database Security Rules Explained</h4>
-                    <p>Code Master</p>
-                    <p>12K views • 1 week ago</p>
-                </div>
-            </div>
-            
-            <div class="related-video">
-                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=80" class="related-thumbnail">
-                <div class="related-info">
-                    <h4>Glassmorphism UI Patterns in 2026</h4>
-                    <p>UI/UX Trends</p>
-                    <p>89K views • 3 days ago</p>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <script>
-        // Initialize Feather Icons
         feather.replace();
     </script>
 </body>
