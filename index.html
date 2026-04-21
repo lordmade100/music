@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vynix Video</title>
+    <title>Vynix Edu | Learning Platform</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <script src="https://unpkg.com/feather-icons"></script>
@@ -11,18 +11,19 @@
     <style>
         :root {
             --bg-main: #FFFFFF;
-            --bg-surface: #F9FAFB;
-            --bg-hover: #F3F4F6;
-            --text-primary: #000000;
-            --text-secondary: #6B7280;
-            --accent: #000000; /* Changed from red to black */
-            --border: #E5E7EB;
-            --sidebar-width: 240px;
-            --header-height: 60px;
-            --radius: 12px;
+            --bg-surface: #F8FAFC;
+            --bg-hover: #F1F5F9;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --accent: #4F46E5; /* Indigo for a modern learning vibe */
+            --accent-hover: #4338CA;
+            --border: #E2E8F0;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --radius: 16px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
         
         body { background: var(--bg-main); color: var(--text-primary); overflow: hidden; }
 
@@ -32,60 +33,102 @@
             height: 100vh; background: var(--bg-surface); padding: 20px; z-index: 1000; position: absolute; inset: 0;
         }
         .auth-card {
-            background: var(--bg-main); padding: 32px; border-radius: var(--radius); width: 100%; max-width: 400px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border);
+            background: var(--bg-main); padding: 40px 32px; border-radius: var(--radius); width: 100%; max-width: 420px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border);
         }
-        .auth-card h2 { margin-bottom: 24px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 12px;}
-        .auth-toggle { text-align: center; color: var(--text-secondary); font-size: 14px; cursor: pointer; }
+        .auth-card h2 { margin-bottom: 8px; text-align: center; font-size: 24px; }
+        .auth-card p { text-align: center; color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+        .auth-input { width: 100%; padding: 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-size: 15px; transition: border-color 0.2s;}
+        .auth-input:focus { border-color: var(--accent); }
+        .auth-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; margin-bottom: 16px; transition: background 0.2s;}
+        .auth-btn:hover { background: var(--accent-hover); }
+        .auth-toggle { text-align: center; color: var(--text-secondary); font-size: 14px; cursor: pointer; font-weight: 500;}
+        .auth-toggle:hover { color: var(--accent); }
 
         /* --- MAIN APP LAYOUT --- */
         #app-screen {
-            display: none; /* Hidden until authenticated */
+            display: grid; /* Hidden by default via JS */
             grid-template-columns: var(--sidebar-width) 1fr;
             grid-template-rows: var(--header-height) 1fr;
             height: 100vh;
         }
 
         /* HEADER */
-        header { grid-column: 1 / 3; grid-row: 1 / 2; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg-main); }
-        .brand { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .search-bar { display: flex; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 99px; padding: 8px 16px; width: 400px; }
-        .search-bar input { flex: 1; border: none; background: transparent; outline: none; }
-        .header-actions { display: flex; align-items: center; gap: 16px; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
+        header { grid-column: 1 / 3; grid-row: 1 / 2; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--border); background: var(--bg-main); z-index: 10; }
+        .brand { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; color: var(--accent); }
+        .search-bar { display: flex; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 99px; padding: 10px 20px; width: 100%; max-width: 450px; transition: border-color 0.2s; }
+        .search-bar:focus-within { border-color: var(--accent); }
+        .search-bar input { flex: 1; border: none; background: transparent; outline: none; font-size: 15px; }
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s;}
+        .avatar:hover { border-color: var(--accent); }
 
         /* SIDEBAR (Desktop) */
-        aside { grid-column: 1 / 2; grid-row: 2 / 3; border-right: 1px solid var(--border); padding: 16px 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-        .nav-item { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer;}
-        .nav-item:hover, .nav-item.active { background: var(--bg-hover); font-weight: 600; }
+        aside { grid-column: 1 / 2; grid-row: 2 / 3; border-right: 1px solid var(--border); padding: 24px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; background: var(--bg-main); }
+        .section-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px 16px; }
+        .nav-item { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 10px; color: var(--text-primary); text-decoration: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s;}
+        .nav-item:hover { background: var(--bg-hover); }
+        .nav-item.active { background: rgba(79, 70, 229, 0.1); color: var(--accent); font-weight: 600; }
+        .nav-item.active svg { stroke: var(--accent); fill: rgba(79, 70, 229, 0.1); }
 
         /* BOTTOM NAV (Mobile) */
-        .bottom-nav { display: none; position: fixed; bottom: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border); padding: 12px 0; z-index: 50; }
-        .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-secondary); cursor: pointer; }
+        .bottom-nav { display: none; position: fixed; bottom: 0; width: 100%; background: var(--bg-main); border-top: 1px solid var(--border); padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); z-index: 50; }
+        .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
+        .bottom-nav-item.active { color: var(--accent); }
 
-        /* MAIN FEED */
-        main { grid-column: 2 / 3; grid-row: 2 / 3; overflow-y: auto; padding: 24px; background: var(--bg-surface); }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        /* MAIN LECTURE/FEED AREA */
+        main { grid-column: 2 / 3; grid-row: 2 / 3; overflow-y: auto; padding: 32px; background: var(--bg-surface); display: grid; grid-template-columns: 1fr 380px; gap: 32px; }
         
-        .video-card { display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
-        .video-thumb { width: 100%; aspect-ratio: 16/9; background: var(--bg-hover); border-radius: 12px; object-fit: cover; }
-        .video-info-row { display: flex; gap: 12px; }
-        .video-text h3 { font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
-        .video-text p { font-size: 13px; color: var(--text-secondary); }
+        .lecture-container { display: flex; flex-direction: column; gap: 20px; }
+        .player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative;}
+        
+        .lecture-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+        .lecture-meta { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        
+        .instructor-info { display: flex; align-items: center; gap: 16px; }
+        .instructor-text h3 { font-size: 16px; font-weight: 600; }
+        .instructor-text p { font-size: 14px; color: var(--text-secondary); }
+        .follow-btn { background: var(--text-primary); color: var(--bg-main); border: none; padding: 10px 24px; border-radius: 99px; font-weight: 600; cursor: pointer; margin-left: 8px; transition: transform 0.1s;}
+        .follow-btn:active { transform: scale(0.95); }
 
-        /* UPLOAD MODAL */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
-        .modal-card { background: var(--bg-main); padding: 24px; border-radius: var(--radius); width: 90%; max-width: 500px; }
+        .action-buttons { display: flex; gap: 12px; }
+        .join-chat-btn { display: flex; align-items: center; gap: 8px; background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 99px; font-weight: 600; cursor: pointer; }
+        .icon-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-hover); border-radius: 50%; border: none; cursor: pointer; color: var(--text-primary); }
+
+        /* SIDEBAR: COURSE MODULES */
+        .course-modules { display: flex; flex-direction: column; gap: 16px; }
+        .module-header { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .module-item { display: grid; grid-template-columns: 140px 1fr; gap: 16px; cursor: pointer; padding: 8px; border-radius: 12px; transition: background 0.2s;}
+        .module-item:hover { background: var(--bg-hover); }
+        .module-thumb { width: 100%; aspect-ratio: 16/9; background: var(--bg-hover); border-radius: 8px; object-fit: cover; }
+        .module-info h4 { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .module-info p { font-size: 13px; color: var(--text-secondary); }
+
+        /* MODALS (Profile & Upload) */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px);}
+        .modal-card { background: var(--bg-main); padding: 32px; border-radius: var(--radius); width: 90%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h3 { font-size: 20px; font-weight: 700; }
+        .close-btn { background: none; border: none; cursor: pointer; color: var(--text-secondary); }
+
+        .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 24px; cursor: pointer; }
+        .profile-pic-preview { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--bg-hover); }
+        .profile-pic-overlay { position: absolute; bottom: 0; right: 0; background: var(--accent); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid var(--bg-main); }
 
         /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            main { grid-template-columns: 1fr; }
+        }
         @media (max-width: 768px) {
             #app-screen { grid-template-columns: 1fr; grid-template-rows: var(--header-height) 1fr; }
             aside { display: none; }
-            main { grid-column: 1 / 2; padding: 16px; padding-bottom: 80px; }
+            header { padding: 0 16px; }
+            main { grid-column: 1 / 2; padding: 16px; padding-bottom: 90px; }
             .search-bar { display: none; }
             .bottom-nav { display: flex; }
+            .lecture-meta { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .action-buttons { width: 100%; justify-content: space-between; }
+            .join-chat-btn { flex: 1; justify-content: center; }
         }
     </style>
 </head>
@@ -93,64 +136,157 @@
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h2 id="auth-title">Sign In to Vynix</h2>
+            <h2 id="auth-title">Join Vynix Edu</h2>
+            <p id="auth-subtitle">Start learning and collaborating today.</p>
             <input type="email" id="auth-email" class="auth-input" placeholder="Email address">
             <input type="password" id="auth-password" class="auth-input" placeholder="Password">
-            <button class="auth-btn" id="auth-submit-btn" onclick="handleAuth()">Sign In</button>
-            <div class="auth-toggle" onclick="toggleAuthMode()">Need an account? Sign Up</div>
+            <button class="auth-btn" id="auth-submit-btn" onclick="handleAuth()">Sign Up</button>
+            <div class="auth-toggle" onclick="toggleAuthMode()">Already enrolled? Sign In</div>
         </div>
     </div>
 
-    <div id="app-screen">
+    <div id="app-screen" style="display: none;">
         <header>
             <div class="brand">
-                <i data-feather="play" style="fill: var(--accent); color: var(--accent);"></i> Vynix
+                <i data-feather="book-open"></i> Vynix Edu
             </div>
             <div class="search-bar">
-                <input type="text" placeholder="Search...">
-                <i data-feather="search" style="color: var(--text-secondary);"></i>
+                <input type="text" placeholder="Search for classes, topics, or study groups...">
+                <i data-feather="search" style="color: var(--text-secondary); width: 18px;"></i>
             </div>
             <div class="header-actions">
-                <i data-feather="plus-square" style="cursor: pointer;" onclick="openUploadModal()"></i>
-                <img src="https://i.pravatar.cc/100" id="header-avatar" class="avatar" onclick="logout()">
+                <i data-feather="video" style="cursor: pointer; color: var(--text-secondary);" onclick="openUploadModal()"></i>
+                <i data-feather="bell" style="cursor: pointer; color: var(--text-secondary);"></i>
+                <img src="https://i.pravatar.cc/150?img=11" id="header-avatar" class="avatar" onclick="openProfileModal()">
             </div>
         </header>
 
         <aside>
-            <div class="nav-item active"><i data-feather="home"></i> Home</div>
-            <div class="nav-item"><i data-feather="compass"></i> Explore</div>
-            <div class="nav-item"><i data-feather="folder"></i> Library</div>
-            <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
-            <div class="nav-item" onclick="logout()"><i data-feather="log-out"></i> Logout</div>
+            <div class="nav-item active"><i data-feather="home"></i> Dashboard</div>
+            <div class="nav-item"><i data-feather="compass"></i> Discover Classes</div>
+            
+            <div class="section-label">My Learning</div>
+            <div class="nav-item"><i data-feather="book"></i> Enrolled Courses</div>
+            <div class="nav-item"><i data-feather="message-circle"></i> Study Rooms</div>
+            <div class="nav-item"><i data-feather="bookmark"></i> Saved Lectures</div>
+            
+            <div class="section-label">Account</div>
+            <div class="nav-item" onclick="openProfileModal()"><i data-feather="user"></i> Edit Profile</div>
+            <div class="nav-item" onclick="logout()"><i data-feather="log-out"></i> Sign Out</div>
         </aside>
 
         <main>
-            <h2 style="margin-bottom: 20px; font-size: 18px;">Recommended for you</h2>
-            <div class="video-grid" id="feed-container">
+            <div class="lecture-container">
+                <div class="player-wrapper">
+                    <video src="YOUR_VIDEO_URL_HERE" controls style="width: 100%; height: 100%; object-fit: cover;"></video>
                 </div>
+                
+                <div class="lecture-header">
+                    <h1>Advanced Calculus: Integration by Parts Simplified</h1>
+                    
+                    <div class="lecture-meta">
+                        <div class="instructor-info">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80" alt="Prof. Sarah" class="avatar" style="width: 48px; height: 48px;">
+                            <div class="instructor-text">
+                                <h3>Prof. Sarah Jenkins</h3>
+                                <p>Mathematics Dept • 14.2K Students</p>
+                            </div>
+                            <button class="follow-btn">Follow</button>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="join-chat-btn"><i data-feather="users" style="width: 18px;"></i> Join Study Chat</button>
+                            <button class="icon-btn"><i data-feather="bookmark" style="width: 18px;"></i></button>
+                            <button class="icon-btn"><i data-feather="share-2" style="width: 18px;"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-main); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 15px; line-height: 1.6;">
+                    <p style="font-weight: 600; margin-bottom: 12px;">Class details • Published Oct 15, 2025</p>
+                    <p>In this module, we break down the formula for integration by parts. Make sure to download the worksheet attached in the study room before proceeding to the quiz at the end of this lecture.</p>
+                </div>
+            </div>
+
+            <div class="course-modules" id="modules-container">
+                <div class="module-header">Course Modules</div>
+                
+                <div class="module-item">
+                    <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&q=80" class="module-thumb">
+                    <div class="module-info">
+                        <h4>1. Introduction to Integrals</h4>
+                        <p>Prof. Sarah Jenkins</p>
+                        <p>45 mins • Completed</p>
+                    </div>
+                </div>
+
+                <div class="module-item" style="background: var(--bg-hover);">
+                    <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&q=80" class="module-thumb">
+                    <div class="module-info">
+                        <h4>2. Integration by Parts</h4>
+                        <p>Prof. Sarah Jenkins</p>
+                        <p style="color: var(--accent); font-weight: 600;">Now Playing</p>
+                    </div>
+                </div>
+                
+                <div class="module-item">
+                    <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&q=80" class="module-thumb">
+                    <div class="module-info">
+                        <h4>3. Trigonometric Substitution</h4>
+                        <p>Prof. Sarah Jenkins</p>
+                        <p>50 mins • Up Next</p>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <nav class="bottom-nav">
-            <div class="bottom-nav-item"><i data-feather="home"></i>Home</div>
-            <div class="bottom-nav-item" onclick="openUploadModal()"><i data-feather="plus-circle"></i>Upload</div>
-            <div class="bottom-nav-item" onclick="logout()"><i data-feather="user"></i>Profile</div>
+            <div class="bottom-nav-item active"><i data-feather="home"></i>Dashboard</div>
+            <div class="bottom-nav-item"><i data-feather="compass"></i>Discover</div>
+            <div class="bottom-nav-item"><i data-feather="message-circle"></i>Chats</div>
+            <div class="bottom-nav-item" onclick="openProfileModal()"><i data-feather="user"></i>Profile</div>
         </nav>
+    </div>
+
+    <div class="modal-overlay" id="profile-modal" onclick="if(event.target === this) closeProfileModal()">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button class="close-btn" onclick="closeProfileModal()"><i data-feather="x"></i></button>
+            </div>
+            
+            <div class="profile-pic-wrapper" onclick="document.getElementById('profile-pic-input').click()">
+                <img src="https://i.pravatar.cc/150?img=11" id="modal-avatar-preview" class="profile-pic-preview">
+                <div class="profile-pic-overlay"><i data-feather="camera" style="width: 16px;"></i></div>
+            </div>
+            <input type="file" id="profile-pic-input" accept="image/*" style="display: none;" onchange="previewProfilePic(event)">
+
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block;">Full Name / Username</label>
+            <input type="text" id="profile-name" class="auth-input" placeholder="e.g. Katlego Math Tutor" value="Katlego">
+            
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block;">Bio / Study Focus</label>
+            <input type="text" id="profile-bio" class="auth-input" placeholder="e.g. Computer Science Student">
+
+            <button class="auth-btn" id="save-profile-btn" onclick="saveProfile()">Save Changes</button>
+        </div>
     </div>
 
     <div class="modal-overlay" id="upload-modal" onclick="if(event.target === this) closeUploadModal()">
         <div class="modal-card">
-            <h3 style="margin-bottom: 16px;">Upload Video</h3>
+            <div class="modal-header">
+                <h3>Upload Lecture</h3>
+                <button class="close-btn" onclick="closeUploadModal()"><i data-feather="x"></i></button>
+            </div>
             <input type="file" id="media-input" accept="video/*" class="auth-input">
-            <input type="text" id="post-title" placeholder="Video Title" class="auth-input">
-            <button class="auth-btn" id="upload-btn" onclick="createPost()">Publish</button>
-            <button class="auth-btn" style="background: var(--bg-hover); color: var(--text-primary);" onclick="closeUploadModal()">Cancel</button>
+            <input type="text" id="post-title" placeholder="Lecture Title" class="auth-input">
+            <button class="auth-btn" id="upload-btn" onclick="createPost()">Publish Class</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, push, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, set, update, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBOyZ3As4GTuNvjemvPF_SpsC6m6vqtNhc",
@@ -170,24 +306,33 @@
         const CLOUDINARY_UPLOAD_PRESET = 'banter_box';
 
         let currentUser = null;
-        let isSignup = false;
+        let isSignup = true;
+        let newProfilePicFile = null;
 
-        // UI Toggles
+        // --- UI TOGGLES ---
         window.toggleAuthMode = () => {
             isSignup = !isSignup;
-            document.getElementById('auth-title').innerText = isSignup ? "Create Account" : "Sign In to Vynix";
+            document.getElementById('auth-title').innerText = isSignup ? "Join Vynix Edu" : "Welcome Back";
+            document.getElementById('auth-subtitle').innerText = isSignup ? "Start learning and collaborating today." : "Sign in to access your classes.";
             document.getElementById('auth-submit-btn').innerText = isSignup ? "Sign Up" : "Sign In";
-            document.querySelector('.auth-toggle').innerText = isSignup ? "Already have an account? Sign In" : "Need an account? Sign Up";
+            document.querySelector('.auth-toggle').innerText = isSignup ? "Already enrolled? Sign In" : "Need an account? Sign Up";
         };
 
         window.openUploadModal = () => document.getElementById('upload-modal').style.display = 'flex';
-        window.closeUploadModal = () => {
-            document.getElementById('upload-modal').style.display = 'none';
-            document.getElementById('media-input').value = '';
-            document.getElementById('post-title').value = '';
+        window.closeUploadModal = () => document.getElementById('upload-modal').style.display = 'none';
+        
+        window.openProfileModal = () => document.getElementById('profile-modal').style.display = 'flex';
+        window.closeProfileModal = () => document.getElementById('profile-modal').style.display = 'none';
+
+        window.previewProfilePic = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                newProfilePicFile = file;
+                document.getElementById('modal-avatar-preview').src = URL.createObjectURL(file);
+            }
         };
 
-        // Authentication
+        // --- AUTHENTICATION ---
         window.handleAuth = async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -196,10 +341,10 @@
             try {
                 if(isSignup) {
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
-                    // Create user profile in DB
                     await set(ref(db, `users/${cred.user.uid}`), {
                         username: email.split('@')[0],
-                        photoURL: "https://i.pravatar.cc/100?img=" + Math.floor(Math.random() * 70),
+                        photoURL: "https://i.pravatar.cc/150?u=" + cred.user.uid,
+                        bio: "Student",
                         createdAt: serverTimestamp()
                     });
                 } else {
@@ -212,13 +357,13 @@
 
         window.logout = () => signOut(auth);
 
-        // Auth State Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'grid';
-                loadFeed();
+                loadUserData();
+                loadModules();
             } else {
                 currentUser = null;
                 document.getElementById('auth-screen').style.display = 'flex';
@@ -226,19 +371,56 @@
             }
         });
 
-        // Cloudinary Upload Logic
-        async function uploadToCloudinary(file) {
+        // --- CLOUDINARY & PROFILE ---
+        async function uploadToCloudinary(file, folder = 'vynix_edu') {
             const fd = new FormData();
             fd.append('file', file);
             fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            fd.append('resource_type', 'auto');
-            
+            fd.append('folder', folder);
             const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
             if (!res.ok) throw new Error('Cloudinary upload failed');
             return await res.json();
         }
 
-        // Create Post
+        function loadUserData() {
+            onValue(ref(db, `users/${currentUser.uid}`), (snapshot) => {
+                if(snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('header-avatar').src = data.photoURL;
+                    document.getElementById('modal-avatar-preview').src = data.photoURL;
+                    document.getElementById('profile-name').value = data.username || '';
+                    document.getElementById('profile-bio').value = data.bio || '';
+                }
+            });
+        }
+
+        window.saveProfile = async () => {
+            const name = document.getElementById('profile-name').value;
+            const bio = document.getElementById('profile-bio').value;
+            const btn = document.getElementById('save-profile-btn');
+            
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            try {
+                let updates = { username: name, bio: bio };
+                
+                if (newProfilePicFile) {
+                    const uploadRes = await uploadToCloudinary(newProfilePicFile, 'avatars');
+                    updates.photoURL = uploadRes.secure_url;
+                }
+
+                await update(ref(db, `users/${currentUser.uid}`), updates);
+                closeProfileModal();
+            } catch (error) {
+                alert("Error updating profile.");
+            } finally {
+                btn.innerText = "Save Changes";
+                btn.disabled = false;
+            }
+        };
+
+        // --- LOAD FEED/MODULES ---
         window.createPost = async () => {
             const fileInput = document.getElementById('media-input');
             const title = document.getElementById('post-title').value;
@@ -250,74 +432,29 @@
             btn.disabled = true;
 
             try {
-                // Upload to Cloudinary
-                const uploadRes = await uploadToCloudinary(fileInput.files[0]);
-                
-                // Save to Firebase Realtime DB
+                const uploadRes = await uploadToCloudinary(fileInput.files[0], 'lectures');
                 await push(ref(db, 'videos'), {
                     uid: currentUser.uid,
                     title: title,
                     mediaUrl: uploadRes.secure_url,
-                    mediaType: uploadRes.resource_type,
                     timestamp: serverTimestamp()
                 });
-
                 closeUploadModal();
-                alert("Upload successful!");
+                alert("Lecture published!");
             } catch (error) {
-                alert("Error: " + error.message);
+                alert("Upload Error: " + error.message);
             } finally {
-                btn.innerText = "Publish";
+                btn.innerText = "Publish Class";
                 btn.disabled = false;
             }
         };
 
-        // Load Feed
-        function loadFeed() {
-            onValue(ref(db, 'videos'), (snapshot) => {
-                const container = document.getElementById('feed-container');
-                container.innerHTML = '';
-                
-                if (!snapshot.exists()) {
-                    container.innerHTML = '<p style="color:var(--text-secondary);">No videos yet. Be the first to upload!</p>';
-                    return;
-                }
-
-                const videos = [];
-                snapshot.forEach(child => videos.push({ id: child.key, ...child.val() }));
-                videos.reverse(); // Newest first
-
-                videos.forEach(vid => {
-                    const card = document.createElement('div');
-                    card.className = 'video-card';
-                    
-                    // Simple placeholder logic if it's a video vs image
-                    const mediaElement = vid.mediaType === 'video' 
-                        ? `<video src="${vid.mediaUrl}" class="video-thumb" muted onmouseover="this.play()" onmouseout="this.pause()"></video>`
-                        : `<img src="${vid.mediaUrl}" class="video-thumb">`;
-
-                    card.innerHTML = `
-                        ${mediaElement}
-                        <div class="video-info-row">
-                            <img src="https://i.pravatar.cc/100?u=${vid.uid}" class="avatar">
-                            <div class="video-text">
-                                <h3>${vid.title}</h3>
-                                <p>User • Just now</p>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            });
+        function loadModules() {
+            // In a real app, this populates the #modules-container dynamically
+            // keeping the static HTML for visual structure in this demo.
         }
 
-        // PWA Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg Failed', err));
-            });
-        }
-
+        // Initialize Icons
         feather.replace();
     </script>
 </body>
